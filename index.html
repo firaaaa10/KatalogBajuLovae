@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Preloved Baju</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #ffecf2;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #ff4081;
+            font-size: 2.5em;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        .item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            width: 230px;
+            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+        }
+        .item:hover {
+            transform: scale(1.05);
+        }
+        .price-original {
+            text-decoration: line-through;
+            color: gray;
+        }
+        .price-discount {
+            color: red;
+            font-weight: bold;
+        }
+        .wishlist-button, .whatsapp-button {
+            margin-top: 10px;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .wishlist-button { background-color: #ff4081; color: white; }
+        .whatsapp-button { background-color: #25D366; color: white; }
+        .dark-mode { position: fixed; top: 10px; right: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <button class="dark-mode" onclick="toggleDarkMode()">🌙</button>
+    <h1>Katalog Preloved Baju ✨</h1>
+    <p class="intro-text">"Temukan fashion terbaik dengan harga spesial! Koleksi eksklusif preloved yang tetap berkualitas tinggi untuk gayamu."</p>
+    
+    <div class="filter-container">
+        <label>Sortir:</label>
+        <select id="sort" onchange="sortItems()">
+            <option value="default">Pilih</option>
+            <option value="low">Paling Terjangkau</option>
+            <option value="high">Paling Recommeded & Worth it</option>
+        </select>
+    </div>
+
+    <div class="container" id="catalog"></div>
+    <h2>Wishlist ❤️</h2>
+    <p id="wishlist-items">Belum ada barang favorit.</p>
+
+    <div class="cart">
+        <h2>Keranjang Belanja 🛍️</h2>
+        <p id="cart-items">Belum ada barang.</p>
+        <button class="whatsapp-button" onclick="sendWhatsApp()">Pesan via WhatsApp</button>
+    </div>
+
+    <script>
+        let darkMode = false;
+        const prelovedItems = [
+            { name: "Baju 1", originalPrice: "80.000", discountPrice:"70.500", image: "Pinky/1.png",  },
+            { name: "Baju 2", originalPrice: "45.000", discountPrice:"33.999", image: "Pinky/2.png" },
+            { name: "Baju 3", originalPrice: "46.000", discountPrice:"35.999", image: "Pinky/3.png" },
+            { name: "Baju 4", originalPrice: "75.000", discountPrice:"55.999", image: "Pinky/4.png" },
+            { name: "Baju 5", originalPrice: "39.999", discountPrice:"35.500", image: "Pinky/5.png" },
+            { name: "Baju 6", originalPrice: "85.000", discountPrice:"60.900", image: "Pinky/6.png" },
+            { name: "Baju 7", originalPrice: "47.000", discountPrice:"35.500", image: "Pinky/7.png" },
+            { name: "Baju 8", originalPrice: "50.000", discountPrice:"39.999", image: "Pinky/8.png" },
+            { name: "Baju 9", originalPrice: "65.000", discountPrice:"57.900", image: "Pinky/9.png" },
+            { name: "Baju 10", originalPrice: "55.000", discountPrice:"35.500", image: "Pinky/10.png" },
+            { name: "Baju 11", originalPrice: "100.000", discountPrice:"85.500", image: "Pinky/11.png" },
+            { name: "Baju 12", originalPrice: "65.000", discountPrice:"50.900", image: "Pinky/12.png" },
+            { name: "Baju 13", originalPrice: "90.000", discountPrice:"80.999", image: "Pinky/13.png" },
+            { name: "Baju 14", originalPrice: "87.000", discountPrice:"75.999", image: "Pinky/14.png" },
+            { name: "Baju 15", originalPrice: "82.000", discountPrice:"70.500", image: "Pinky/15.png" },
+            { name: "Baju 16", originalPrice: "40.000", discountPrice:"34.999", image: "Pinky/16.png" },
+            { name: "Baju 17", originalPrice: "67.000", discountPrice:"55.500", image: "Pinky/17.png" },
+            { name: "Baju 18", originalPrice: "59.000", discountPrice:"55.700", image: "Pinky/18.png" },
+            { name: "Baju 19", originalPrice: "70.000", discountPrice:"50.501", image: "Pinky/19.png" },
+            { name: "Baju 20", originalPrice: "49.500", discountPrice:"45.500", image: "Pinky/20.png" },
+            { name: "Baju 21", originalPrice: "130.000", discountPrice:"108.001", image: "Pinky/21.png" },
+            { name: "Baju 22", originalPrice: "52.000", discountPrice:"45.500", image: "Pinky/22.png" },
+            { name: "Baju 23", originalPrice: "58.000", discountPrice:"48.200", image: "Pinky/23.png" },
+            { name: "Baju 24", originalPrice: "64.000", discountPrice:"58.999", image: "Pinky/24.png" },
+            { name: "Baju 25", originalPrice: "69.000", discountPrice:"50.000", image: "Pinky/25.png" },
+            { name: "Baju 26", originalPrice: "81.000", discountPrice:"70.999", image: "Pinky/26.png" },
+            { name: "Baju 27", originalPrice: "50.000", discountPrice:"30.999", image: "Pinky/27.png" },
+            { name: "Baju 28", originalPrice: "88.000", discountPrice:"77.999", image: "Pinky/28.png" },
+            { name: "Baju 29", originalPrice: "55.789", discountPrice:"39.789", image: "Pinky/29.png" },
+            { name: "Baju 30", originalPrice: "68.000", discountPrice:"51.999", image: "Pinky/30.png" },
+            { name: "Baju 31", originalPrice: "56.000", discountPrice:"44.999", image: "Pinky/31.png" },
+            { name: "Baju 32", originalPrice: "45.500", discountPrice:"35.699", image: "Pinky/32.png" },
+            { name: "Baju 33", originalPrice: "39.000", discountPrice:"29.999", image: "Pinky/33.png" },
+            { name: "Baju 34", originalPrice: "45.000", discountPrice:"39.999", image: "Pinky/34.png" },
+            { name: "Baju 35", originalPrice: "50.000", discountPrice:"44.999", image: "Pinky/35.png" },
+            { name: "Baju 36", originalPrice: "60.000", discountPrice:"45.000", image: "Pinky/36.png" },
+            { name: "Baju 37", originalPrice: "84.000", discountPrice:"78.000", image: "Pinky/37.png" },
+            { name: "Baju 38", originalPrice: "80.500", discountPrice:"71.899", image: "Pinky/38.png" },
+            { name: "Baju 39", originalPrice: "55.000", discountPrice:"48.000", image: "Pinky/39.png" },
+            { name: "Baju 40", originalPrice: "58.700", discountPrice:"50.000", image: "Pinky/40.png" },
+            { name: "Baju 41", originalPrice: "53.000", discountPrice:"45.999", image: "Pinky/41.png" },
+            { name: "Baju 42", originalPrice: "75.000", discountPrice:"64.999", image: "Pinky/42.png" },
+            { name: "Baju 43", originalPrice: "69.000", discountPrice:"60.500", image: "Pinky/43.png" },
+            { name: "Baju 44", originalPrice: "50.999", discountPrice:"44.999", image: "Pinky/44.png" },
+            { name: "Baju 45", originalPrice: "65.000", discountPrice:"55.000", image: "Pinky/45.png" },
+            { name: "Baju 46", originalPrice: "58.000", discountPrice:"45.000", image: "Pinky/46.png" },
+            { name: "Baju 47", originalPrice: "61.000", discountPrice:"50.999", image: "Pinky/47.png" },
+            { name: "Baju 48", originalPrice: "60.000", discountPrice:"59.999", image: "Pinky/48.png" },
+            { name: "Baju 49", originalPrice: "54.000", discountPrice:"59.999", image: "Pinky/49.png" },
+            { name: "Baju 50", originalPrice: "45.000", discountPrice:"39.999", image: "Pinky/50.png" },
+            { name: "Baju 51", originalPrice: "46.500", discountPrice:"38.999", image: "Pinky/51.png" },
+            { name: "Baju 52", originalPrice: "48.900", discountPrice:"40.000", image: "Pinky/52.png" },
+            { name: "Baju 53", originalPrice: "55.000", discountPrice:"45.000", image: "Pinky/53.png" },
+            { name: "Baju 54", originalPrice: "45.000", discountPrice:"38.000", image: "Pinky/54.png" },
+            { name: "Baju 55", originalPrice: "47.000", discountPrice:"35.000", image: "Pinky/55.png" },
+            { name: "Baju 56", originalPrice: "55.000", discountPrice:"50.500", image: "Pinky/56.png" },
+            { name: "Baju 57", originalPrice: "60.000", discountPrice:"54.999", image: "Pinky/57.png" },
+            { name: "Baju 58", originalPrice: "73.000", discountPrice:"65.000", image: "Pinky/58.png" },
+            { name: "Baju 59", originalPrice: "34.000", discountPrice:"29.000", image: "Pinky/59.png" },
+            { name: "Baju 60", originalPrice: "58.700", discountPrice:"50.000", image: "Pinky/60.png" },
+            { name: "Baju 61", originalPrice: "44.999", discountPrice:"35.500", image: "Pinky/61.png" },
+            { name: "Baju 62", originalPrice: "53.000", discountPrice:"45.000", image: "Pinky/62.png" },
+            { name: "Baju 63", originalPrice: "51.500", discountPrice:"42.999", image: "Pinky/63.png" },
+            { name: "Baju 64", originalPrice: "60.000", discountPrice:"51.500", image: "Pinky/64.png" },
+            { name: "Baju 65", originalPrice: "56.000", discountPrice:"49.999", image: "Pinky/65.png" },
+            { name: "Baju 66", originalPrice: "70.000", discountPrice:"45.000", image: "Pinky/66.png" },
+            { name: "Baju 67", originalPrice: "37.900", discountPrice:"29.999", image: "Pinky/67.png" },
+            { name: "Baju 68", originalPrice: "43.999", discountPrice:"35.500", image: "Pinky/68.png" },
+            { name: "Baju 69", originalPrice: "54.000", discountPrice:"48.000", image: "Pinky/69.png" },
+            { name: "Baju 70", originalPrice: "48.000", discountPrice:"35.000", image: "Pinky/70.png" },
+            { name: "Baju 71", originalPrice: "67.000", discountPrice:"49.999", image: "Pinky/71.png" },
+            { name: "Baju 72", originalPrice: "54.500", discountPrice:"44.500", image: "Pinky/72.png" },
+            { name: "Baju 73", originalPrice: "62.999", discountPrice:"56.000", image: "Pinky/73.png" },
+            { name: "Baju 74", originalPrice: "46.600", discountPrice:"38.999", image: "Pinky/74.png" },
+            { name: "Baju 75", originalPrice: "60.000", discountPrice:"54.999", image: "Pinky/75.png" },
+            { name: "Baju 76", originalPrice: "35.000", discountPrice:"30.999", image: "Pinky/76.png" },
+            { name: "Baju 77", originalPrice: "55.000", discountPrice:"47.999", image: "Pinky/77.png" }
+        ];
+
+        let wishlist = [];
+        let cart = [];
+
+        function renderItems() {
+            const catalog = document.getElementById("catalog");
+            catalog.innerHTML = "";
+            prelovedItems.forEach((item, index) => {
+                const div = document.createElement("div");
+                div.classList.add("item");
+                div.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}" width="100%">
+                    <h2>${item.name}</h2>
+                    <p><span class="price-original">Rp ${item.originalPrice.toLocaleString()}</span> <span class="price-discount">Rp ${item.discountPrice.toLocaleString()}</span></p>
+                    <button class="wishlist-button" onclick="addToWishlist(${index})">Tambah ke Wishlist</button>
+                    <button onclick="addToCart(${index})">Tambah ke Keranjang</button>
+                `;
+                catalog.appendChild(div);
+            });
+        }
+
+        function sortItems() {
+        let sortValue = document.getElementById("sort").value;
+        if (sortValue === "low") {
+        prelovedItems.sort((a, b) => parseFloat(a.discountPrice.replace(".", "")) - parseFloat(b.discountPrice.replace(".", "")));
+        } else if (sortValue === "high") {
+        prelovedItems.sort((a, b) => parseFloat(b.discountPrice.replace(".", "")) - parseFloat(a.discountPrice.replace(".", "")));
+        }
+        renderItems();
+        }
+
+        function addToWishlist(index) {
+            if (!wishlist.includes(prelovedItems[index])) wishlist.push(prelovedItems[index]);
+            document.getElementById("wishlist-items").innerHTML = wishlist.map(item => `<p>${item.name} - Rp ${item.discountPrice.toLocaleString()}</p>`).join("");
+        }
+
+        function sendWhatsApp() {
+    if (cart.length === 0) { 
+        alert("Keranjang masih kosong!"); 
+        return; 
+    }
+
+    let message = "Halo! Saya ingin memesan item berikut:\n\n";
+    
+    cart.forEach((item, index) => {
+        message += `${index + 1}. ${item.name} - Rp ${item.discountPrice}\n`;
+    });
+
+    // Hitung total harga dengan memastikan format angka benar
+    let totalHarga = cart.reduce((total, item) => total + parseInt(item.discountPrice.replace(/\./g, ""), 10), 0);
+    let formattedTotal = new Intl.NumberFormat('id-ID').format(totalHarga);
+
+    message += `\nTotal: Rp ${formattedTotal}`;
+    
+    let whatsappURL = `https://wa.me/6287721855573?text=${encodeURIComponent(message)}`;
+    
+    window.open(whatsappURL, "_blank");
+}
+
+// Perbaikan addToCart agar item tidak masuk dua kali
+function addToCart(index) {
+    if (!cart.some(item => item.name === prelovedItems[index].name)) {
+        cart.push(prelovedItems[index]);
+    }
+
+    document.getElementById("cart-items").innerHTML = cart.map(item => `<p>${item.name} - Rp ${item.discountPrice}</p>`).join("");
+}
+
+
+        function toggleDarkMode() {
+            darkMode = !darkMode;
+            document.body.style.backgroundColor = darkMode ? "#333" : "#ffecf2";
+            document.body.style.color = darkMode ? "white" : "black";
+        }
+        
+        renderItems();
+    </script>
+</body>
+</html>
