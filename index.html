@@ -1,6 +1,28 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <!-- Firebase SDK -->
+<script type="module">
+  // Tambahkan Firebase SDK di sini (Salin dari Firebase Console)
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  // Inisialisasi Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+</script>
+
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="favicon.png">
@@ -86,6 +108,30 @@
         <p id="cart-items">Belum ada barang.</p>
         <button class="whatsapp-button" onclick="sendWhatsApp()">Pesan via WhatsApp</button>
     </div>
+
+    <script type="module">
+  import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  const productRef = ref(db, "products");
+  
+  onValue(productRef, (snapshot) => {
+    const products = snapshot.val();
+    let productHTML = "";
+
+    Object.values(products).forEach(product => {
+      productHTML += `
+        <div class="produk">
+          <img src="${product.gambar}" alt="${product.nama}">
+          <h2>${product.nama}</h2>
+          <p>${product.harga}</p>
+          <p class="status ${product.status}">${product.status === 'sold' ? 'SOLD OUT' : 'Available'}</p>
+        </div>
+      `;
+    });
+
+    document.getElementById("produk-list").innerHTML = productHTML;
+  });
+</script>
 
     <script>
         let darkMode = false;
