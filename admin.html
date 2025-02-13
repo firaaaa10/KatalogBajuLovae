@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Edit Produk</title>
+</head>
+<body>
+    <h1>Edit Status Produk</h1>
+    <div id="produk-list"></div>
+
+    <script type="module">
+        import { ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const productRef = ref(db, "products");
+        
+        onValue(productRef, (snapshot) => {
+            const products = snapshot.val();
+            let productHTML = "";
+
+            Object.entries(products).forEach(([id, product]) => {
+                productHTML += `
+                    <div>
+                        <h2>${product.nama}</h2>
+                        <p>${product.harga}</p>
+                        <label>
+                            Status:
+                            <select onchange="updateStatus('${id}', this.value)">
+                                <option value="available" ${product.status === 'available' ? 'selected' : ''}>Available</option>
+                                <option value="sold" ${product.status === 'sold' ? 'selected' : ''}>SOLD</option>
+                            </select>
+                        </label>
+                    </div>
+                    <hr>
+                `;
+            });
+
+            document.getElementById("produk-list").innerHTML = productHTML;
+        });
+
+        // Fungsi untuk update status di Firebase
+        window.updateStatus = (id, status) => {
+            update(ref(db, `products/${id}`), { status });
+            alert("Status produk diperbarui!");
+        };
+    </script>
+</body>
+</html>
